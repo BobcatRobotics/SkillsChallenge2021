@@ -1,0 +1,14 @@
+{
+ "DriveTrainType": 1,
+ "Nodes": [
+  {
+   "GUID": "2627f685-9715-ad1d-d294-ddc476193931",
+   "ModelFileName": "node_0.bxda",
+   "ModelID": "robot:1",
+   "ParentID": "-1",
+   "joint": null
+  }
+ ],
+ "SoftwareExportedWith": "FUSION_360",
+ "Version": "4.2.0"
+}
