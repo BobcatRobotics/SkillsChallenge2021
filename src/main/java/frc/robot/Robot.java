@@ -1,95 +1,317 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 2017-2019 FIRST. All Rights Reserved.                        */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.commands.DriveTele;
+import frc.robot.commands.FeederRun;
+import frc.robot.commands.MoveTurret;
+import frc.robot.commands.SimpleAuto;
+import frc.robot.commands.SimpleAuto2;
+import frc.robot.subsystems.*;
+import frc.robot.commands.StopAtCollision;
 
-/**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
- * project.
- */
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+  
+  private DriveTele drivetele = new DriveTele(RobotContainer.drivetrain, RobotContainer.rightStick, RobotContainer.leftStick);
+  private MoveTurret moveTurret = new MoveTurret(RobotContainer.turret, RobotContainer.gamepad);
+  private StopAtCollision stopAtCollision = new StopAtCollision(RobotContainer.navx, RobotContainer.drivetrain);
+  // Default Limelight modes for when the different robot states initialize
+  // 0: Initial State (RobotInit)
+  // 1: Disabled
+  // 2: Autonomous
+  // 3: TeleOp
+  // 4: Test
+  private final Limelight.LED[] defaultLED = {
+    Limelight.LED.OFF,
+    Limelight.LED.OFF,
+    Limelight.LED.ON,
+    Limelight.LED.OFF,
+    Limelight.LED.ON
+  };
+  
+  private final Limelight.CAM[] defaultCAM = {
+    Limelight.CAM.DRIVER,
+    Limelight.CAM.DRIVER,
+    Limelight.CAM.VISION,
+    Limelight.CAM.DRIVER,
+    Limelight.CAM.VISION
+  };
 
+  private SendableChooser<String> autoChooser;
+  private SendableChooser<String> pushBotChooser;
+  private Limelight limelight;
   private RobotContainer m_robotContainer;
+  private Joystick gamepad;
+  private Joystick rightStick;
+  private Intake intake;
+  private Shooter shooter;
+  private Drivetrain drivetrain;
+  private Feeder feeder;
+  private Climber climber;
+  private Turret turret;
+  private ColorWheel colorWheel;
+  private CommandBase desiredAutoCommand;
+  private ShuffleboardTab tab = Shuffleboard.getTab("Things Tab");
+  private NetworkTableEntry waitNT = tab.add("WaitTime",0.0).getEntry();
+  private double waitTime = 0;
+  private NavxGyro navx;
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
   @Override
   public void robotInit() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
+    limelight = m_robotContainer.limelight;
+    limelight.setLED(1);
+    limelight.setCAM(0);
     m_robotContainer = new RobotContainer();
+    gamepad = m_robotContainer.gamepad;
+    rightStick = m_robotContainer.rightStick;
+    intake = m_robotContainer.intake;
+    shooter = m_robotContainer.shooter;
+    drivetrain = m_robotContainer.drivetrain;
+    feeder = m_robotContainer.feeder;
+    climber = m_robotContainer.climber;
+    turret = m_robotContainer.turret;
+    colorWheel = m_robotContainer.colorwheel;
+    autoChooser = new SendableChooser<String>();
+    pushBotChooser = new SendableChooser<String>();
+    navx = m_robotContainer.navx;
+
+    autoChooser.setDefaultOption("Shoot & Scoot", Constants.SHOOT_SCOOT);
+    autoChooser.setName("Autonomous Command");
+    autoChooser.addOption("Trench Run", Constants.TRENCH_RUN);
+
+    pushBotChooser.setDefaultOption("PUSH", Constants.PUSH);
+    pushBotChooser.addOption("DONT PUSH",Constants.DONT_PUSH);
+    pushBotChooser.setName("Push Ally Bot");
+
+    SmartDashboard.putData(autoChooser);
+    SmartDashboard.putData(pushBotChooser);
   }
 
-  /**
-   * This function is called every robot packet, no matter the mode. Use this for items like
-   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-   * SmartDashboard integrated updating.
-   */
   @Override
   public void robotPeriodic() {
-    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-    // commands, running already-scheduled commands, removing finished or interrupted commands,
-    // and running subsystem periodic() methods.  This must be called from the robot's periodic
-    // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
   }
 
-  /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
-
-  @Override
-  public void disabledPeriodic() {}
-
-  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
-  @Override
-  public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+  public void disabledInit() {
+    limelight.setLED(1);
+    limelight.setCAM(0);
   }
 
-  /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void disabledPeriodic() {
+    limelight.setLED(1);
+    climber.stop();
+    feeder.stop();
+    intake.stopFunnel();
+    intake.stopIntake();
+    intake.stopLowerTower();
+    shooter.stopShooter();
+    intake.intakeUp();
+    climber.withdraw();
+
+        // Display values to driver station
+        readTalonsAndShowValues();
+  }
+
+  @Override
+  public void autonomousInit() {
+    CommandScheduler.getInstance().cancelAll();
+    limelight.setLED(1);
+    limelight.setCAM(0);
+    
+    shooter.setSpeed(5000);
+    turret.zeroTurret();
+    desiredAutoCommand = getDesiredAutoCommand();
+    if (desiredAutoCommand != null) {
+      desiredAutoCommand.schedule();
+    }
+    stopAtCollision.schedule();
+  }
+
+  @Override
+  public void autonomousPeriodic() {
+    
+  }
+
+  public CommandBase getDesiredAutoCommand() {
+    String selected = autoChooser.getSelected();
+    String pushSelect = pushBotChooser.getSelected();
+    boolean push = false;
+    if(pushSelect.equals(Constants.PUSH)){
+      push = true;
+    }
+    double speed = -.3;
+    double driveTime = 0.5;
+    double shootTime = 3.0;
+    waitTime = waitNT.getDouble(0.0);
+    if (selected.equals(Constants.SHOOT_SCOOT)) {
+      return new SimpleAuto(shooter, drivetrain, speed, shootTime, driveTime, feeder, intake, push);
+    } else if (selected.equals(Constants.TRENCH_RUN)) {
+      return new SimpleAuto2(shooter, turret, drivetrain, speed, driveTime, shootTime, feeder, intake, push, waitTime);
+    }
+
+
+    return null;
+  }
 
   @Override
   public void teleopInit() {
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
-    }
+    CommandScheduler.getInstance().cancelAll();
+    limelight.setLED(1);
+    limelight.setCAM(0);
+    
+    drivetele.schedule();
+    moveTurret.schedule();
+    stopAtCollision.schedule();
   }
 
-  /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    //This should fire off commands to the robot based on the user input to controller?
+    //Every 20 ms
+    CommandScheduler.getInstance().run();
+    if(gamepad.getRawButton(Constants.Right_Trigger_Button) && !gamepad.getRawButton(Constants.Right_Bumper_Button)){
+      intake.runIntakeIn(true);
+    }else if(gamepad.getRawButton(Constants.Right_Bumper_Button) &&! gamepad.getRawButton(Constants.Right_Trigger_Button) ){
+      intake.runIntakeOut(true);
+    }else{
+      intake.stopIntake();
+    }
+
+    if(gamepad.getRawButton(Constants.Left_Bumper_Button)){
+      // if(shooter.isRunning())
+      // {
+      //     shooter.stopShooter();
+      //     shooter.setRunning(false);
+      // }else{
+      //     shooter.setRunning(true);
+      //     shooter.getToSpeed();
+      // }
+      shooter.setRunning(true);
+      shooter.getToSpeed();
+    } else {
+      shooter.stopShooter();
+      shooter.setRunning(false);
+    }
+
+    if (gamepad.getRawButton(Constants.Right_Joystick_Pressed)) {
+      turret.targetEntity();
+    }else{
+      limelight.setLED(1);
+      limelight.setCAM(1);
+    }
+
+    if(gamepad.getRawButton(Constants.X_Button)){
+      intake.intakeDown();
+    }
+    if(gamepad.getRawButton(Constants.Y_Button)){
+      intake.intakeUp();
+    }
+    if(gamepad.getRawButton(Constants.Left_Trigger_Button) || (gamepad.getRawButton(Constants.Right_Bumper_Button) && !gamepad.getRawButton(Constants.Right_Trigger_Button))){
+      FeederRun run = new FeederRun(feeder, intake, shooter, gamepad);
+      run.feed();
+    }else{
+      feeder.stop();
+      intake.stopFunnel();
+      intake.stopLowerTower();
+    }
+    if ((gamepad.getPOV() == Constants.D_Pad_Up) && (!rightStick.getRawButton(Constants.RS_Shift_Switch))) {
+      if (!climber.getDeployed()) {
+          climber.deploy();
+      }
+    }
+    if(gamepad.getPOV() == Constants.D_Pad_Down){
+      intake.runAllOut();
+      shooter.reverseShooters();
+      feeder.reverse();
+    }
+    if(gamepad.getRawButton(Constants.Left_Joystick_Pressed)){
+      
+      double speed = gamepad.getRawAxis(Joystick.AxisType.kY.value);
+      if(speed < 0.0)
+          speed = 0.0;
+      climber.climb(speed);
+    } else {
+      climber.climb(0.0);
+    }
+
+    //Below would be the check to see if the user is saying rotate the color wheel
+    if (false) {
+      colorWheel.spin();
+    }
+
+    if(gamepad.getPOV() == Constants.D_Pad_Left){
+      double tempSpeed = shooter.getSpeed() - 100;
+      if (tempSpeed < 0) {
+        tempSpeed = 0;
+      }
+      shooter.setSpeed(tempSpeed);
+      if(shooter.isRunning()) {
+        shooter.getToSpeed();
+      }
+    } else if(gamepad.getPOV() == Constants.D_Pad_Right){
+      double tempSpeed = shooter.getSpeed() +100;
+      if (tempSpeed > 6300) {
+        tempSpeed = 6300;
+      }
+      shooter.setSpeed(tempSpeed);
+      if(shooter.isRunning()) {
+        shooter.getToSpeed();
+      }
+    }
+
+    // Display values to driver station
+    readTalonsAndShowValues();
+  }
 
   @Override
   public void testInit() {
+    limelight.setLED(1);
+    limelight.setCAM(0);
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }
 
-  /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
+
+  public void readTalonsAndShowValues() {
+    // Display shooter motor speeds
+    SmartDashboard.putNumber("shooter1RPM:", shooter.getLeftRPM());
+    SmartDashboard.putNumber("shooter2RPM:", shooter.getRightRPM());
+    SmartDashboard.putNumber("Shooter Target Speed", shooter.getSpeed());
+
+    intake.checkLowerTower();
+
+    drivetrain.checkmotors();
+    
+    //Turret Position
+    SmartDashboard.putNumber("TurretPos", turret.getPosition());
+    
+    //Ball Present SensorsS
+    SmartDashboard.putBoolean("Lower Tower Ball Present", intake.getBallPresent());
+    SmartDashboard.putBoolean("High Tower Ball Present", feeder.getBallPresent());
+
+    //Limelight
+    SmartDashboard.putBoolean("Limelight has target", limelight.hasTarget());
+    SmartDashboard.putNumber("Target Distance (ft)", limelight.getTargetDistance());
+
+  }
 }
