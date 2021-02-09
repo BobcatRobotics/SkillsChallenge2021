@@ -199,7 +199,6 @@ public class Drivetrain extends SubsystemBase {
         ltMotor.getSelectedSensorVelocity();
         lmMotor.getSelectedSensorVelocity();
         lbMotor.getSelectedSensorVelocity();
-
     }
         
 
