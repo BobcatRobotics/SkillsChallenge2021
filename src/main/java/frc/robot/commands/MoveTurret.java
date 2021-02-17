@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Turret;
@@ -11,7 +12,7 @@ public class MoveTurret extends CommandBase {
     public static final double percentToTurnMotorWhenCommandedByButton = .05;
 
     private final Turret turret;
-    private final Joystick gamepad;
+    private final XboxController gamepad;
 
     /**
      * 1. Comply with limit switchs <br>
@@ -22,7 +23,7 @@ public class MoveTurret extends CommandBase {
      * @param trrt Turret subsystem
      * @param gmpd XboxController instance
      */
-    public MoveTurret(Turret trrt, Joystick gmpd) {
+    public MoveTurret(Turret trrt, XboxController gmpd) {
         this.turret = trrt;
         this.gamepad = gmpd;
         addRequirements(turret);

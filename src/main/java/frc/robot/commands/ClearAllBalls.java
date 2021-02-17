@@ -12,9 +12,9 @@ public class ClearAllBalls extends CommandBase {
     private Intake intake;
     private Feeder feeder;
     private Shooter shooter;
-    private final Joystick gamepad;
+    private final XboxController gamepad;
 
-    public ClearAllBalls(Intake itk, Feeder fdr, Shooter str, Joystick gpd) {
+    public ClearAllBalls(Intake itk, Feeder fdr, Shooter str, XboxController gpd) {
         
         this.intake = itk;
         this.feeder = fdr;
@@ -30,6 +30,5 @@ public class ClearAllBalls extends CommandBase {
         intake.runAllOut();
         shooter.reverseShooters();
         feeder.reverse();
-        
     }
 }

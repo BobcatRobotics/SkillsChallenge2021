@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Intake;
@@ -8,7 +9,7 @@ import frc.robot.subsystems.Intake;
 public class IntakeIn extends CommandBase {
 
     private Intake intake;
-    private final Joystick gamepad;
+    private final XboxController gamepad;
 
     /**
      * 1. Changes the intake direction to take in balls from the ground. <br>
@@ -16,7 +17,7 @@ public class IntakeIn extends CommandBase {
      * 3. Balls from the intake are then stored in the feeder. <br>
      * 4. This changes the intake direction, not whether it is stowed in or not.
      */
-    public IntakeIn(Intake itk, Joystick gpd) {
+    public IntakeIn(Intake itk, XboxController gpd) {
         this.intake = itk;
         this.gamepad = gpd;
         addRequirements(intake);

@@ -14,7 +14,7 @@ public class IntakeStop extends CommandBase {
      * 3. Balls from the intake are then stored in the feeder. <br>
      * 4. This changes the intake direction, not whether it is stowed in or not.
      */
-    public IntakeStop(Intake itk, Joystick gpd) {
+    public IntakeStop(Intake itk) {
         this.intake = itk;
         addRequirements(intake);
     }

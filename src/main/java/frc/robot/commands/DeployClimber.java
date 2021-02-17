@@ -8,7 +8,7 @@ public class DeployClimber extends CommandBase {
 
     public Climber climber;
 
-    public DeployClimber(Climber cl, Joystick gpd) {
+    public DeployClimber(Climber cl) {
         this.climber = cl;
         addRequirements(climber);
     }

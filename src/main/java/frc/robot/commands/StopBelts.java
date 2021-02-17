@@ -12,9 +12,9 @@ public class StopBelts extends CommandBase {
     private Intake intake;
     private Feeder feeder;
     private Shooter shooter;
-    private final Joystick gamepad;
+    private final XboxController gamepad;
 
-    public StopBelts(Intake itk, Feeder fdr, Shooter str, Joystick gpd) {
+    public StopBelts(Intake itk, Feeder fdr, Shooter str, XboxController gpd) {
         
         this.intake = itk;
         this.feeder = fdr;

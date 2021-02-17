@@ -19,7 +19,6 @@ import static frc.robot.Constants.RouteFinderConstants.kvVoltSecondsPerMeter;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -28,17 +27,32 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PerpetualCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
+import frc.robot.commands.ClearAllBalls;
+import frc.robot.commands.DeployClimber;
+import frc.robot.commands.DriveTele;
+import frc.robot.commands.FeederRun;
+import frc.robot.commands.IntakeDown;
+import frc.robot.commands.IntakeIn;
+import frc.robot.commands.IntakeOut;
+import frc.robot.commands.IntakeStop;
+import frc.robot.commands.IntakeUp;
+import frc.robot.commands.MoveTurret;
+import frc.robot.commands.PancakeDown;
+import frc.robot.commands.PancakeUp;
+import frc.robot.commands.RunShooter;
+import frc.robot.commands.StopBelts;
+import frc.robot.commands.StopClimber;
+import frc.robot.commands.WithdrawClimber;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ColorWheel;
 import frc.robot.subsystems.Drivetrain;
@@ -57,10 +71,12 @@ public class RobotContainer {
   // Joysticks
   public static final Joystick rightStick = new Joystick(rightStickPort);
   public static final Joystick leftStick = new Joystick(leftStickPort);
-  public static final Joystick gamepad = new Joystick(gamepadPort);
+  public static final XboxController gamepad = new XboxController(gamepadPort);
   
   // Drivetrain
   public static final Drivetrain drivetrain = new Drivetrain();
+  // Drivetrain Default Command
+  private static final DriveTele driveTele = new DriveTele(drivetrain, rightStick, leftStick);
 
   // Shooter
   public static final Shooter shooter = new Shooter();
@@ -76,6 +92,8 @@ public class RobotContainer {
 
   // Turret
   public static final Turret turret = new Turret(limelight);
+  // Turret Default Command
+  private static final MoveTurret moveTurret = new MoveTurret(turret, gamepad);
 
   //Climber
   public static final Climber climber = new Climber();
@@ -96,6 +114,9 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
+    drivetrain.setDefaultCommand(driveTele);
+    turret.setDefaultCommand(moveTurret);
   }
 
   /**
@@ -124,40 +145,37 @@ public class RobotContainer {
      */
     // Attaches a commmand to each button
     // Starts the shooter motors when the Y button is pressed
-    //new JoystickButton(gamepad, Constants.Left_Bumper_Button).whenPressed(new RunShooter(shooter, feeder, limelight, gamepad));
+    new JoystickButton(gamepad, Constants.Left_Bumper_Button).whenPressed(new RunShooter(shooter, feeder, limelight, gamepad));
     // Takes in balls from the ground when the right trigger is held
-    // new JoystickButton(gamepad, Constants.Right_Bumper_Button).whenHeld(new IntakeIn(intake,gamepad));
-    // new JoystickButton(gamepad, Constants.Right_Bumper_Button).whenReleased(new IntakeStop(intake,gamepad));
-    // // Pushes out balls onto the ground when the right bumper is held
-    // new JoystickButton(gamepad, Constants.Right_Trigger_Button).whenHeld(new IntakeOut(intake,gamepad));
-    // new JoystickButton(gamepad, Constants.Right_Trigger_Button).whenReleased(new IntakeStop(intake,gamepad));
+    new JoystickButton(gamepad, Constants.Right_Bumper_Button).whenHeld(new IntakeIn(intake,gamepad));
+    new JoystickButton(gamepad, Constants.Right_Bumper_Button).whenReleased(new IntakeStop(intake));
+    // Pushes out balls onto the ground when the right bumper is held
+    new JoystickButton(gamepad, Constants.Right_Trigger_Button).whenHeld(new IntakeOut(intake,gamepad));
+    new JoystickButton(gamepad, Constants.Right_Trigger_Button).whenReleased(new IntakeStop(intake));
     //Run the feeder system
-    // new JoystickButton(gamepad, Constants.Left_Trigger_Button).whenHeld(new FeederRun(feeder, intake, shooter, gamepad));
-    // //Lift Intake pneau
-    // new JoystickButton(gamepad, Constants.X_Button).whenPressed(new IntakeUp(intake));
-    // //lower intake pneau
-    // new JoystickButton(gamepad, Constants.Y_Button).whenPressed(new IntakeDown(intake));
+    new JoystickButton(gamepad, Constants.Left_Trigger_Button).whenHeld(new FeederRun(feeder, intake, shooter));
+    //Lift Intake pneau
+    new JoystickButton(gamepad, Constants.X_Button).whenPressed(new IntakeUp(intake));
+    //lower intake pneau
+    new JoystickButton(gamepad, Constants.Y_Button).whenPressed(new IntakeDown(intake));
 
-    // new JoystickButton(gamepad, Constants.Left_Joystick_Pressed).whenHeld(new WithdrawClimber(climber, gamepad));
+    new JoystickButton(gamepad, Constants.Left_Joystick_Pressed).whenHeld(new WithdrawClimber(climber, gamepad));
 
-    // new JoystickButton(gamepad,Constants.Left_Joystick_Pressed).whenReleased(new StopClimber(climber));
-    // // Starts targeting when the up arrow on the D-pad is pressed
-    // new POVButton(gamepad, povUp).whenPressed(new DeployClimber(climber, gamepad));
-    // // Ends targeting when the down arrow on the D-pad is pressed
-    // new POVButton(gamepad, povDown).whenHeld(new ClearAllBalls(intake, feeder, shooter, gamepad));
-    // new POVButton(gamepad, povDown).whenReleased(new StopBelts(intake, feeder, shooter, gamepad));
+    new JoystickButton(gamepad,Constants.Left_Joystick_Pressed).whenReleased(new StopClimber(climber));
+    // Starts targeting when the up arrow on the D-pad is pressed
+    new POVButton(gamepad, Constants.RobotContainerConstants.povUp).whenPressed(new DeployClimber(climber));
+    // Ends targeting when the down arrow on the D-pad is pressed
+    new POVButton(gamepad, Constants.RobotContainerConstants.povDown).whenHeld(new ClearAllBalls(intake, feeder, shooter, gamepad));
+    new POVButton(gamepad, Constants.RobotContainerConstants.povDown).whenReleased(new StopBelts(intake, feeder, shooter, gamepad));
     //raise shooter angle
-    // new POVButton(gamepad, povRight).whenPressed(new PancakeUp(shooter, gamepad));
+    new POVButton(gamepad, Constants.RobotContainerConstants.povRight).whenPressed(new PancakeUp(shooter, gamepad));
     //lower shooter angle
-    // new POVButton(gamepad, povLeft).whenPressed(new PancakeDown(shooter, gamepad));
-    // Heads to a position when the left bumper is pressed
-    // new JoystickButton(gamepad, Button.kBumperLeft.value)
-    //     .whenPressed(RouteFinder.getPathCommand(RouteFinder.trajectorygen(pointx, pointy, rotation)));
+    new POVButton(gamepad, Constants.RobotContainerConstants.povLeft).whenPressed(new PancakeDown(shooter, gamepad));
     
-    // Driving
-    // new PerpetualCommand(new DriveTele(drivetrain, rightStick, leftStick)).schedule();
-    // Turret
-   // new PerpetualCommand(new MoveTurret(turret, gamepad)).schedule(); 
+    //Driving
+    new PerpetualCommand(new DriveTele(drivetrain, rightStick, leftStick)).schedule();
+    //Turret
+    new PerpetualCommand(new MoveTurret(turret, gamepad)).schedule(); 
   }
 
   public static TrajectoryConfig getConfig() {

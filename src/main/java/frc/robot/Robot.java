@@ -73,7 +73,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    limelight = m_robotContainer.limelight;
+    /* limelight = m_robotContainer.limelight;
     limelight.setLED(1);
     limelight.setCAM(0);
     m_robotContainer = new RobotContainer();
@@ -99,7 +99,7 @@ public class Robot extends TimedRobot {
     pushBotChooser.setName("Push Ally Bot");
 
     SmartDashboard.putData(autoChooser);
-    SmartDashboard.putData(pushBotChooser);
+    SmartDashboard.putData(pushBotChooser); */
   }
 
   @Override
@@ -186,6 +186,7 @@ public class Robot extends TimedRobot {
     //This should fire off commands to the robot based on the user input to controller?
     //Every 20 ms
     CommandScheduler.getInstance().run();
+    /*
     if(gamepad.getRawButton(Constants.Right_Trigger_Button) && !gamepad.getRawButton(Constants.Right_Bumper_Button)){
       intake.runIntakeIn(true);
     }else if(gamepad.getRawButton(Constants.Right_Bumper_Button) &&! gamepad.getRawButton(Constants.Right_Trigger_Button) ){
@@ -277,7 +278,7 @@ public class Robot extends TimedRobot {
     }
 
     // Display values to driver station
-    readTalonsAndShowValues();
+    readTalonsAndShowValues(); */
   }
 
   @Override
