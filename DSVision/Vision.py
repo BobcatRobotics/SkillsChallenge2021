@@ -1,3 +1,4 @@
+from cscore import CameraServer
 import cv2
 import numpy as np
 
@@ -56,13 +57,61 @@ def chooseDirection(coords, frame):
     else:
         return RIGHT
 
+def writeDirection(direction: int, frame):
+    position = (50, 0)
+    if direction == RIGHT:
+        frameWithText = cv2.putText(
+            frame, 
+            "RIGHT", 
+            position, 
+            cv2.FONT_HERSHEY_SIMPLEX, 
+            1, 
+            (255, 255, 255, 255), 
+            1
+        )
+        return frameWithText
+    elif direction == LEFT:
+        frameWithText = cv2.putText(
+            frame, 
+            "LEFT", 
+            position, 
+            cv2.FONT_HERSHEY_SIMPLEX, 
+            1, 
+            (255, 255, 255, 255), 
+            1
+        )
+        return frameWithText
+    else:
+        print("Invalid Direction...")
+        return frame
+
+
+
 if __name__ == '__main__':
 
-    cap = cv2.VideoCapture(port)
+    cs = CameraServer.getInstance()
+    cs.enableLogging()
 
-    while cap.isOpened():
-        ret, frame = cap.read()
+    mainCamera = cs.startAutomaticCapture()
+    mainCamera.setResolution(1920, 1080)
+
+    outputSink = cs.putVideo("OuputStream", 1920, 1080)
+
+    frame = None
+
+    while True:
+        time, frame = outputSink.grabFrame(frame)
+
+        if time == 0:
+            outputSink.notifyError(outputSink.getError())
+            continue
 
         coords = detectBalls(frame)
 
         direction = chooseDirection(coords, frame)
+
+        frameWithText = writeDirection(direction, frame)
+
+        outputSink.putFrame(frameWithText)
+
+        print(direction)
