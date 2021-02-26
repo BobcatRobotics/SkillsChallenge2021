@@ -263,6 +263,34 @@ public class RobotContainer {
       drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
       // RamseteCommand passes volts to the callback
       drivetrain::tankDriveVolts, drivetrain);
+      
+      // Dhanya Barrel
+      /**
+      RamseteCommand barrelCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+        drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+        new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+        drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+        // RamseteCommand passes volts to the callback
+        drivetrain::tankDriveVolts, drivetrain); 
+      **/
+      // Dhanya Bounce
+      /**
+      RamseteCommand bounceCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+        drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+        new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+        drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+        // RamseteCommand passes volts to the callback
+        drivetrain::tankDriveVolts, drivetrain); 
+      **/
+      // Dhanya Slalom
+      /**
+      RamseteCommand slalomCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+        drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+        new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+        drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+        // RamseteCommand passes volts to the callback
+        drivetrain::tankDriveVolts, drivetrain); 
+      **/
 
     if (trajectoryJSON == blueA1) {
       for (int i = 0; i < 8; i++) {
