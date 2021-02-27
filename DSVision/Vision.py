@@ -10,6 +10,9 @@ satUpper = 255
 valLower = 82
 valUpper = 255
 
+lowerBound = np.array([hueLower, satLower, valLower])
+upperBound = np.array([hueUpper, satUpper, valUpper])
+
 # Hough Circles Parameters
 minDist = 1000
 pr1 = 255
@@ -24,13 +27,9 @@ LEFT = 0
 RIGHT = 1
 
 def detectBalls(frame):
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    yellow_frame = frame[
-        hueLower:hueUpper, 
-        satLower:satUpper, 
-        valLower:valUpper
-    ]
+    yellow_frame = cv2.inRange(hsv, lowerBound, upperBound)
 
     yellow_frame = cv2.medianBlur(yellow_frame, 5)
 
