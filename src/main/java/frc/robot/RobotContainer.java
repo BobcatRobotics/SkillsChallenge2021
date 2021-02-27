@@ -292,6 +292,34 @@ public class RobotContainer {
         drivetrain::tankDriveVolts, drivetrain); 
       **/
 
+      // Rakshan Barrel
+      /*
+      RamseteCommand barrelSafeCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+      // RamseteCommand passes volts to the callback
+      drivetrain::tankDriveVolts, drivetrain);
+      */
+      // Rakshan Slalom
+      /*
+      RamseteCommand slalomSafeCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+      // RamseteCommand passes volts to the callback
+      drivetrain::tankDriveVolts, drivetrain);
+      */
+      // Rakshan Bounce
+      /*
+      RamseteCommand bounceSafeCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+      // RamseteCommand passes volts to the callback
+      drivetrain::tankDriveVolts, drivetrain);
+      */
+
     if (trajectoryJSON == blueA1) {
       for (int i = 0; i < 8; i++) {
         try {
