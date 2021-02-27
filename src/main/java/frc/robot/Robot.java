@@ -65,9 +65,10 @@ public class Robot extends TimedRobot {
   private Climber climber;
   private Turret turret;
   private ColorWheel colorWheel;
-  private CommandBase desiredAutoCommand;
+  private CommandBase desiredAutoCommand = null;
   private ShuffleboardTab tab = Shuffleboard.getTab("Things Tab");
   private NetworkTableEntry waitNT = tab.add("WaitTime",0.0).getEntry();
+  private NetworkTableEntry sideNT = tab.add("Direction","Right").getEntry();
   private double waitTime = 0;
   private NavxGyro navx;
 
@@ -90,9 +91,15 @@ public class Robot extends TimedRobot {
     pushBotChooser = new SendableChooser<String>();
     navx = m_robotContainer.navx;
 
-    autoChooser.setDefaultOption("Shoot & Scoot", Constants.SHOOT_SCOOT);
-    autoChooser.setName("Autonomous Command");
-    autoChooser.addOption("Trench Run", Constants.TRENCH_RUN);
+    // autoChooser.setDefaultOption("Shoot & Scoot", Constants.SHOOT_SCOOT);
+    // autoChooser.setName("Autonomous Command");
+    // autoChooser.addOption("Trench Run", Constants.TRENCH_RUN);
+
+    autoChooser.addOption("Galactic Search A","Galactic Search A");
+    autoChooser.addOption("Galactic Search B","Galactic Search B");
+    autoChooser.addOption("Slalom","Slalom");
+    autoChooser.addOption("Barrel","Barrel");
+    autoChooser.addOption("Bounce","Bounce");
 
     pushBotChooser.setDefaultOption("PUSH", Constants.PUSH);
     pushBotChooser.addOption("DONT PUSH",Constants.DONT_PUSH);
@@ -141,12 +148,12 @@ public class Robot extends TimedRobot {
     if (desiredAutoCommand != null) {
       desiredAutoCommand.schedule();
     }
-    stopAtCollision.schedule();
+    //stopAtCollision.schedule();
   }
 
   @Override
   public void autonomousPeriodic() {
-    
+    CommandScheduler.getInstance().run();
   }
 
   public CommandBase getDesiredAutoCommand() {
@@ -160,12 +167,38 @@ public class Robot extends TimedRobot {
     double driveTime = 0.5;
     double shootTime = 3.0;
     waitTime = waitNT.getDouble(0.0);
-    if (selected.equals(Constants.SHOOT_SCOOT)) {
-      return new SimpleAuto(shooter, drivetrain, speed, shootTime, driveTime, feeder, intake, push);
-    } else if (selected.equals(Constants.TRENCH_RUN)) {
-      return new SimpleAuto2(shooter, turret, drivetrain, speed, driveTime, shootTime, feeder, intake, push, waitTime);
-    }
+    // if (selected.equals(Constants.SHOOT_SCOOT)) {
+    //   return new SimpleAuto(shooter, drivetrain, speed, shootTime, driveTime, feeder, intake, push);
+    // } else if (selected.equals(Constants.TRENCH_RUN)) {
+    //   return new SimpleAuto2(shooter, turret, drivetrain, speed, driveTime, shootTime, feeder, intake, push, waitTime);
+    // }
 
+    if (selected.equals("Galactic Search A")) {
+
+      if (sideNT.equals("Left")){
+        m_robotContainer.getBlueAAutonomousCommand().start();
+      } else {
+        m_robotContainer.getRedAAutonomousCommand().start();
+      }
+
+    } else if (selected.equals("Galactic Search B")){
+
+      if (sideNT.equals("Left")){
+        m_robotContainer.getBlueBAutonomousCommand().start();
+      } else {
+        m_robotContainer.getRedBAutonomousCommand().start();
+      }
+
+    } else if (selected.equals("Bounce")) {
+
+      m_robotContainer.getBounceAutonomousCommand().start();
+    } else if (selected.equals("Slalom")) {
+
+      m_robotContainer.getSlalomAutonomousCommand().start();
+    } else if (selected.equals("Barrel")){
+
+      m_robotContainer.getBarrelAutonomousCommand().start();
+    }
 
     return null;
   }

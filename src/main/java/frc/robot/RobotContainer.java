@@ -178,6 +178,52 @@ public class RobotContainer {
         .setReversed(false);
   }
 
+  public Command getBarrelAutonomousCommand() {
+    String trajectoryJSON = "PathWeaver/dhanya/barrel.json";	      
+    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryGroup[i]);
+    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+
+    RamseteCommand barrelCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+    drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+    new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+    drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+    // RamseteCommand passes volts to the callback
+    drivetrain::tankDriveVolts, drivetrain); 
+    return barrelCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
+  }
+
+  public Command getBounceAutonomousCommand(){
+
+    String trajectoryJSON = "PathWeaver/dhanya/bounce.json";	      
+    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryGroup[i]);
+    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+
+    RamseteCommand bounceCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+    drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+    new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+    drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+    // RamseteCommand passes volts to the callback
+    drivetrain::tankDriveVolts, drivetrain); 
+    return bounceCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
+  }
+
+  public Command getSlalomAutonomousCommand(){
+
+    String trajectoryJSON = "PathWeaver/dhanya/bounce.json";	      
+    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryGroup[i]);
+    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    
+    RamseteCommand slalomCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+    drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+    new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+    drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+    // RamseteCommand passes volts to the callback
+    drivetrain::tankDriveVolts, drivetrain); 
+
+    return slalomCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
+
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
