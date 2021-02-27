@@ -67,7 +67,7 @@ if __name__ == '__main__':
     # cap = VideoCaptureAsync(src=0, width=1920, height=1080)
     # cap = cv2.VideoCapture(port)
 
-    while True
+    while True:
         # ret, frame = cap.read()
         # ret, frame = camera.getVideo().grabFrame(input_image)
 
