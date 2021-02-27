@@ -346,6 +346,20 @@ public class RobotContainer {
       drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
       // RamseteCommand passes volts to the callback
       drivetrain::tankDriveVolts, drivetrain);
+
+      RamseteCommand barrelMiddleCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+      // RamseteCommand passes volts to the callback
+      drivetrain::tankDriveVolts, drivetrain);
+
+      RamseteCommand barrelFastCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+      // RamseteCommand passes volts to the callback
+      drivetrain::tankDriveVolts, drivetrain);
       */
       // Rakshan Slalom
       /*
@@ -355,10 +369,38 @@ public class RobotContainer {
       drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
       // RamseteCommand passes volts to the callback
       drivetrain::tankDriveVolts, drivetrain);
+
+      RamseteCommand slalomMiddleCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+      // RamseteCommand passes volts to the callback
+      drivetrain::tankDriveVolts, drivetrain);
+
+      RamseteCommand slalomFastCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+      // RamseteCommand passes volts to the callback
+      drivetrain::tankDriveVolts, drivetrain);
       */
       // Rakshan Bounce
       /*
       RamseteCommand bounceSafeCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+      // RamseteCommand passes volts to the callback
+      drivetrain::tankDriveVolts, drivetrain);
+
+      RamseteCommand bounceMiddleCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+      // RamseteCommand passes volts to the callback
+      drivetrain::tankDriveVolts, drivetrain);
+
+      RamseteCommand bounceFastCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
       drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
       new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
       drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
