@@ -3,12 +3,12 @@ import cv2
 import numpy as np
 
 # Color filtering params
-hueLower = 52
-hueUpper = 73
-satLower = 62
-satUpper = 100
-valLower = 38
-valUpper = 73
+hueLower = 16
+hueUpper = 43
+satLower = 49
+satUpper = 255
+valLower = 82
+valUpper = 255
 
 # Hough Circles Parameters
 minDist = 1000
