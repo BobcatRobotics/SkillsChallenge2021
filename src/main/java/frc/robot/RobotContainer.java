@@ -180,8 +180,20 @@ public class RobotContainer {
 
   public Command getBarrelAutonomousCommand() {
     String trajectoryJSON = "PathWeaver/dhanya/barrel.json";	      
-    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryGroup[i]);
-    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    try{
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+      Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+    }
+    var kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
+      DifferentialDriveVoltageConstraint autoVoltageConstraint =
+        new DifferentialDriveVoltageConstraint(
+        new SimpleMotorFeedforward(Constants.RouteFinderConstants.ksVolts,
+                                      Constants.RouteFinderConstants.kvVoltSecondsPerMeter,
+                                       Constants.RouteFinderConstants.kaVoltSecondsSquaredPerMeter),
+            kDriveKinematics,
+            10);
 
     RamseteCommand barrelCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
     drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
@@ -195,8 +207,20 @@ public class RobotContainer {
   public Command getBounceAutonomousCommand(){
 
     String trajectoryJSON = "PathWeaver/dhanya/bounce.json";	      
-    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryGroup[i]);
-    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    try{
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+      Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+    }
+    var kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
+      DifferentialDriveVoltageConstraint autoVoltageConstraint =
+        new DifferentialDriveVoltageConstraint(
+        new SimpleMotorFeedforward(Constants.RouteFinderConstants.ksVolts,
+                                      Constants.RouteFinderConstants.kvVoltSecondsPerMeter,
+                                       Constants.RouteFinderConstants.kaVoltSecondsSquaredPerMeter),
+            kDriveKinematics,
+            10);
 
     RamseteCommand bounceCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
     drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
@@ -210,9 +234,21 @@ public class RobotContainer {
   public Command getSlalomAutonomousCommand(){
 
     String trajectoryJSON = "PathWeaver/dhanya/bounce.json";	      
-    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryGroup[i]);
-    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    
+    try{
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+      Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+    }
+    var kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
+    DifferentialDriveVoltageConstraint autoVoltageConstraint =
+      new DifferentialDriveVoltageConstraint(
+      new SimpleMotorFeedforward(Constants.RouteFinderConstants.ksVolts,
+                                    Constants.RouteFinderConstants.kvVoltSecondsPerMeter,
+                                     Constants.RouteFinderConstants.kaVoltSecondsSquaredPerMeter),
+          kDriveKinematics,
+          10);
+
     RamseteCommand slalomCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
     drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
     new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
@@ -243,6 +279,7 @@ public class RobotContainer {
       String trajectoryJSON = blueA1; // Set to "" if it doesn't work
       String[] trajectoryGroup = {blueA1, blueA2, blueA3, blueA4, blueA5, blueA6, blueA7};
     // Create a voltage constraint to ensure we don't accelerate too fast
+    
       DifferentialDriveVoltageConstraint autoVoltageConstraint =
         new DifferentialDriveVoltageConstraint(
         new SimpleMotorFeedforward(Constants.RouteFinderConstants.ksVolts,

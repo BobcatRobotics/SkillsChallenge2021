@@ -176,28 +176,28 @@ public class Robot extends TimedRobot {
     if (selected.equals("Galactic Search A")) {
 
       if (sideNT.equals("Left")){
-        m_robotContainer.getBlueAAutonomousCommand().start();
+        m_robotContainer.getBlueAAutonomousCommand().schedule();
       } else {
-        m_robotContainer.getRedAAutonomousCommand().start();
+        m_robotContainer.getRedAAutonomousCommand().schedule();
       }
 
     } else if (selected.equals("Galactic Search B")){
 
       if (sideNT.equals("Left")){
-        m_robotContainer.getBlueBAutonomousCommand().start();
+        m_robotContainer.getBlueBAutonomousCommand().schedule();
       } else {
-        m_robotContainer.getRedBAutonomousCommand().start();
+        m_robotContainer.getRedBAutonomousCommand().schedule();
       }
 
     } else if (selected.equals("Bounce")) {
 
-      m_robotContainer.getBounceAutonomousCommand().start();
+      m_robotContainer.getBounceAutonomousCommand().schedule();
     } else if (selected.equals("Slalom")) {
 
-      m_robotContainer.getSlalomAutonomousCommand().start();
+      m_robotContainer.getSlalomAutonomousCommand().schedule();
     } else if (selected.equals("Barrel")){
 
-      m_robotContainer.getBarrelAutonomousCommand().start();
+      m_robotContainer.getBarrelAutonomousCommand().schedule();
     }
 
     return null;
