@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 
 # Color filtering params
-hueLower = 16
+hueLower = 17
 hueUpper = 43
-satLower = 49
+satLower = 90
 satUpper = 255
 valLower = 82
 valUpper = 255
@@ -17,7 +17,7 @@ minDist = 1000
 pr1 = 255
 pr2 = 10
 minR = 0
-maxR = 160
+maxR = 50
 
 # Directions
 LEFT = 0
@@ -31,7 +31,11 @@ def detectBalls(frame):
 
     yellow_frame = cv2.inRange(hsv, lowerBound, upperBound)
 
-    yellow_frame = cv2.medianBlur(yellow_frame, 5)
+    kernel = np.ones((1,1),np.uint8)
+    yellow_frame = cv2.morphologyEx(yellow_frame, cv2.MORPH_OPEN, kernel)
+
+
+    # yellow_frame = cv2.medianBlur(yellow_frame, 5)
 
     circles_temp = cv2.HoughCircles(yellow_frame, cv2.HOUGH_GRADIENT, 1, minDist, param1=pr1, param2=pr2, minRadius=minR, maxRadius=maxR)
 
@@ -45,8 +49,11 @@ def detectBalls(frame):
     for (x, y, r) in circles[0]:
         if r > maxRadiusFound:
             maxRadiusFound = r
-            circleCoords = [x, y]
+            circleCoords = [x, y, r]
     
+    frame_outline = cv2.circle(frame, (circleCoords[0], circleCoords[1]), circleCoords[2], (0, 0, 255), 3)
+    cv2.imshow('image', frame_outline)
+    cv2.imshow('mask', yellow_frame)
     return circleCoords
 
 def chooseDirection(coords, frame):
@@ -103,33 +110,36 @@ if __name__ == '__main__':
 
     capIndexChosen = int(input("Which camera? : "))
     
-    '''
+    
     cv2.namedWindow('thresh')
-    cv2.createTrackbar('hueUpper', 'thresh', 255, 255, nothing)
-    cv2.createTrackbar('satUpper', 'thresh', 255, 255, nothing)
-    cv2.createTrackbar('valUpper', 'thresh', 255, 255, nothing)
-    cv2.createTrackbar('hueLower', 'thresh', 0, 255, nothing)
-    cv2.createTrackbar('satLower', 'thresh', 0, 255, nothing)
-    cv2.createTrackbar('valLower', 'thresh', 0, 255, nothing)
-    '''
+    cv2.createTrackbar('hueUpper', 'thresh', hueUpper, 255, nothing)
+    cv2.createTrackbar('satUpper', 'thresh', satUpper, 255, nothing)
+    cv2.createTrackbar('valUpper', 'thresh', valUpper, 255, nothing)
+    cv2.createTrackbar('hueLower', 'thresh', hueLower, 255, nothing)
+    cv2.createTrackbar('satLower', 'thresh', satLower, 255, nothing)
+    cv2.createTrackbar('valLower', 'thresh', valLower, 255, nothing)
+    cv2.createTrackbar('maxR', 'thresh', maxR, 50, nothing)
+    
     cap = cv2.VideoCapture(capIndexChosen)
-
     while True:
         ret, frame = cap.read()
-        '''
+        
         hueUpper = cv2.getTrackbarPos('hueUpper', 'thresh')
         satUpper = cv2.getTrackbarPos('satUpper', 'thresh')
         valUpper = cv2.getTrackbarPos('valUpper', 'thresh')
         hueLower = cv2.getTrackbarPos('hueLower', 'thresh')
         satLower = cv2.getTrackbarPos('satLower', 'thresh')
         valLower = cv2.getTrackbarPos('valLower', 'thresh')
-        '''
+        maxR = cv2.getTrackbarPos('maxR', 'thresh')
+        lowerBound = np.array([hueLower, satLower, valLower])
+        upperBound = np.array([hueUpper, satUpper, valUpper])
+
+        
         if ret:
             #cv2.imshow('test', frame)
             coords = detectBalls(frame)
             direction = chooseDirection(coords, frame)
             frameWithText = writeDirection(direction, frame)
-            cv2.imshow('ouput', frameWithText)
             print(direction)
 
             '''
