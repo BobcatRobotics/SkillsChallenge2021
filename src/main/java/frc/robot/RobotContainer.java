@@ -126,7 +126,7 @@ public class RobotContainer {
      */
     // Attaches a commmand to each button
     // Starts the shooter motors when the Y button is pressed
-    new JoystickButton(gamepad, Constants.Left_Bumper_Button).whenPressed(new RunShooter(shooter, feeder, limelight, gamepad));
+    // new JoystickButton(gamepad, Constants.Left_Bumper_Button).whenPressed(new RunShooter(shooter, feeder, limelight, gamepad));
     // Takes in balls from the ground when the right trigger is held
     // new JoystickButton(gamepad, Constants.Right_Bumper_Button).whenHeld(new IntakeIn(intake,gamepad));
     // new JoystickButton(gamepad, Constants.Right_Bumper_Button).whenReleased(new IntakeStop(intake,gamepad));
@@ -259,35 +259,6 @@ public class RobotContainer {
     return slalomCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
 
   }
-
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-    public Command getBlueAAutonomousCommand() {
-      var kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
-
-      String blueA1 = "ryan/GalacticSearchA/Paths/goingBall1.path";
-      String blueA2 = "ryan/GalacticSearchA/retrievingBall1.path";
-      String blueA3 = "ryan/GalacticSearchA/goingBall2.path";
-      String blueA4 = "ryan/GalacticSearchA/retrievingBall2.path";
-      String blueA5 = "ryan/GalacticSearchA/goingBall3.path";
-      String blueA6 = "ryan/GalacticSearchA/retrievingBall3.path";
-      String blueA7 = "ryan/GalacticSearchA/ends.path";
-      // Trajectory
-      String trajectoryJSON = blueA1; // Set to "" if it doesn't work
-      String[] trajectoryGroup = {blueA1, blueA2, blueA3, blueA4, blueA5, blueA6, blueA7};
-    // Create a voltage constraint to ensure we don't accelerate too fast
-    
-      DifferentialDriveVoltageConstraint autoVoltageConstraint =
-        new DifferentialDriveVoltageConstraint(
-        new SimpleMotorFeedforward(Constants.RouteFinderConstants.ksVolts,
-                                      Constants.RouteFinderConstants.kvVoltSecondsPerMeter,
-                                       Constants.RouteFinderConstants.kaVoltSecondsSquaredPerMeter),
-            kDriveKinematics,
-            10);
-
     // //An example trajectory to follow. All units in meters.
     // Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
     //     //Start at the origin facing the +X direction
@@ -340,13 +311,7 @@ public class RobotContainer {
      * command does not operate on the drive at the same time as any other command
      * that uses the drive.
      */
-    RamseteCommand ramseteCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-      // RamseteCommand passes volts to the callback
-      drivetrain::tankDriveVolts, drivetrain);
-      
+  
       // Dhanya Barrel
       /**
       RamseteCommand barrelCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
@@ -445,193 +410,61 @@ public class RobotContainer {
       drivetrain::tankDriveVolts, drivetrain);
       */
 
-    if (trajectoryJSON == blueA1) {
-      for (int i = 0; i < 8; i++) {
-        try {
-          Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryGroup[i]);
-          Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-        } catch (IOException ex) {
-          DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-        }
-        // Reset odometry, then run path following command, then stop at the end.
-        if (i < 7) {
-          ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
-        }
-      }
+
+public Command getAutonomousCommand(String path) {
+  var kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
+  // Trajectory
+  String trajectoryJSON = path; // Set to "" if it doesn't work
+  // Create a voltage constraint to ensure we don't accelerate too fast
+  try {
+    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+  } catch (IOException ex) {
+    DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+  }
+  DifferentialDriveVoltageConstraint autoVoltageConstraint =
+    new DifferentialDriveVoltageConstraint(
+    new SimpleMotorFeedforward(Constants.RouteFinderConstants.ksVolts,
+                                  Constants.RouteFinderConstants.kvVoltSecondsPerMeter,
+                                   Constants.RouteFinderConstants.kaVoltSecondsSquaredPerMeter),
+        kDriveKinematics,
+        10);
+  RamseteCommand ramseteCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+    drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+    new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+    drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+    // RamseteCommand passes volts to the callback
+    drivetrain::tankDriveVolts, drivetrain);
+
+  return ramseteCommand.andThen(() -> drivetrain.tankDriveVolts(0, 0));
+}
+
+public Command getStartAutonomousCommand(String path) {
+  var kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
+  // Trajectory
+  String trajectoryJSON = path; // Set to "" if it doesn't work
+  // Create a voltage constraint to ensure we don't accelerate too fast
+  try {
+    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+  } catch (IOException ex) {
+    DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+  }
+  DifferentialDriveVoltageConstraint autoVoltageConstraint =
+    new DifferentialDriveVoltageConstraint(
+    new SimpleMotorFeedforward(Constants.RouteFinderConstants.ksVolts,
+                                  Constants.RouteFinderConstants.kvVoltSecondsPerMeter,
+                                   Constants.RouteFinderConstants.kaVoltSecondsSquaredPerMeter),
+        kDriveKinematics,
+        10);
+    RamseteCommand ramseteCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
+      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
+      // RamseteCommand passes volts to the callback
+      drivetrain::tankDriveVolts, drivetrain);
+
+
     return ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
-    } else { 
-      // If using one path, rather than the group
-      try {
-        Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-        Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-      } catch (IOException ex) {
-        DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-      }
-     // Reset odometry, then run path following command, then stop at the end.
-      return ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
   }
-}
-
-public Command getRedAAutonomousCommand() {
-  var kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
-  String redA1 = "ryan/GalacticSearchA/approachingBall1.path";
-  String redA2 = "ryan/GalacticSearchA/receivingBall1.path";
-  String redA3 = "ryan/GalacticSearchA/approachingBall2.path";
-  String redA4 = "ryan/GalacticSearchA/receivingBall2.path";
-  String redA5 = "ryan/GalacticSearchA/approachingBall3.path";
-  String redA6 = "ryan/GalacticSearchA/receivingBall3.path";
-  String redA7 = "ryan/GalacticSearchA/redfinish.path";
-  // Trajectory
-  String trajectoryJSON = redA1; // Set to "" if it doesn't work
-  String[] trajectoryGroup = {redA1, redA2, redA3, redA4, redA5, redA6, redA7};
-// Create a voltage constraint to ensure we don't accelerate too fast
-  DifferentialDriveVoltageConstraint autoVoltageConstraint =
-    new DifferentialDriveVoltageConstraint(
-    new SimpleMotorFeedforward(Constants.RouteFinderConstants.ksVolts,
-                                  Constants.RouteFinderConstants.kvVoltSecondsPerMeter,
-                                   Constants.RouteFinderConstants.kaVoltSecondsSquaredPerMeter),
-        kDriveKinematics,
-        10);
-RamseteCommand ramseteCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-  drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-  new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-  drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-  // RamseteCommand passes volts to the callback
-  drivetrain::tankDriveVolts, drivetrain);
-
-if (trajectoryJSON == redA1) {
-  for (int i = 0; i < 8; i++) {
-    try {
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryGroup[i]);
-      Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    } catch (IOException ex) {
-      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-    }
-   // Reset odometry, then run path following command, then stop at the end.
-    if (i < 7) {
-      ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
-    }
-  }
-return ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
-} else { 
-  // If using one path, rather than the group
-  try {
-    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-  } catch (IOException ex) {
-    DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-  }
- // Reset odometry, then run path following command, then stop at the end.
-  return ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
-}
-}
-
-public Command getBlueBAutonomousCommand() {
-  var kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
-  String blueB1 = "ryan/GalacticSearchB/Paths/headingBall1.path";
-  String blueB2 = "ryan/GalacticSearchB/gettingBall1.path";
-  String blueB3 = "ryan/GalacticSearchB/headingBall2.path";   
-  String blueB4 = "ryan/GalacticSearchB/gettingBall2.path";
-  String blueB5 = "ryan/GalacticSearchB/headingBall3.path";
-  String blueB6 = "ryan/GalacticSearchB/gettingBall3.path";
-  String blueB7 = "ryan/GalacticSearchB/ending.path";
-  // Trajectory
-  String trajectoryJSON = blueB1; // Set to "" if it doesn't work
-  String[] trajectoryGroup = {blueB1, blueB2, blueB3, blueB4, blueB5, blueB6, blueB7};
-// Create a voltage constraint to ensure we don't accelerate too fast
-  DifferentialDriveVoltageConstraint autoVoltageConstraint =
-    new DifferentialDriveVoltageConstraint(
-    new SimpleMotorFeedforward(Constants.RouteFinderConstants.ksVolts,
-                                  Constants.RouteFinderConstants.kvVoltSecondsPerMeter,
-                                   Constants.RouteFinderConstants.kaVoltSecondsSquaredPerMeter),
-        kDriveKinematics,
-        10);
-RamseteCommand ramseteCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-  drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-  new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-  drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-  // RamseteCommand passes volts to the callback
-  drivetrain::tankDriveVolts, drivetrain);
-
-if (trajectoryJSON == blueB1) {
-  for (int i = 0; i < 8; i++) {
-    try {
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryGroup[i]);
-      Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    } catch (IOException ex) {
-      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-    }
-
-    // Reset odometry, then run path following command, then stop at the end.
-    if (i < 7) {
-      ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
-    }
-  }
-return ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
-} else { 
-  // If using one path, rather than the group
-  try {
-    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-  } catch (IOException ex) {
-    DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-  }
- // Reset odometry, then run path following command, then stop at the end.
-  return ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
-}
-}
-
-public Command getRedBAutonomousCommand() {
-  var kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
-  String redB1 = "ryan/GalacticSearchB/towardsBall1.path";
-  String redB2 = "ryan/GalacticSearchB/collectBall1.path";
-  String redB3 = "ryan/GalacticSearchB/towardsBall2.path";
-  String redB4 = "ryan/GalacticSearchB/collectBall2.path";
-  String redB5 = "ryan/GalacticSearchB/towardsBall3.path";
-  String redB6 = "ryan/GalacticSearchB/collectBall3.path";
-  String redB7 = "ryan/GalacticSearchB/toEnd.path";
-  // Trajectory
-  String trajectoryJSON = redB1; // Set to "" if it doesn't work
-  String[] trajectoryGroup = {redB1, redB2, redB3, redB4, redB5, redB6, redB7};
-// Create a voltage constraint to ensure we don't accelerate too fast
-  DifferentialDriveVoltageConstraint autoVoltageConstraint =
-    new DifferentialDriveVoltageConstraint(
-    new SimpleMotorFeedforward(Constants.RouteFinderConstants.ksVolts,
-                                  Constants.RouteFinderConstants.kvVoltSecondsPerMeter,
-                                   Constants.RouteFinderConstants.kaVoltSecondsSquaredPerMeter),
-        kDriveKinematics,
-        10);
-RamseteCommand ramseteCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-  drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-  new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-  drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-  // RamseteCommand passes volts to the callback
-  drivetrain::tankDriveVolts, drivetrain);
-
-if (trajectoryJSON == redB1) {
-  for (int i = 0; i < 8; i++) {
-    try {
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryGroup[i]);
-      Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    } catch (IOException ex) {
-      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-    }
-    // Reset odometry, then run path following command, then stop at the end.
-    if (i < 7) {
-      ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
-    }
-  }
-  return ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
-} else { 
-  // If using one path, rather than the group
-  try {
-    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-  } catch (IOException ex) {
-    DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-  }
- // Reset odometry, then run path following command, then stop at the end.
-  return ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
-}
-}
 }

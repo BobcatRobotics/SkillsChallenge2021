@@ -17,13 +17,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.DriveTele;
-import frc.robot.commands.FeederRun;
-import frc.robot.commands.MoveTurret;
-import frc.robot.commands.SimpleAuto;
-import frc.robot.commands.SimpleAuto2;
 import frc.robot.subsystems.*;
-import frc.robot.commands.StopAtCollision;
+import frc.robot.commands.*;
 
 public class Robot extends TimedRobot {
   
@@ -174,19 +169,72 @@ public class Robot extends TimedRobot {
     // }
 
     if (selected.equals("Galactic Search A")) {
-
       if (sideNT.equals("Left")){
-        m_robotContainer.getBlueAAutonomousCommand().schedule();
+        String blueA1 = "ryan/GalacticSearchA/Paths/goingBall1.path";
+        String blueA2 = "ryan/GalacticSearchA/retrievingBall1.path";
+        String blueA3 = "ryan/GalacticSearchA/goingBall2.path";
+        String blueA4 = "ryan/GalacticSearchA/retrievingBall2.path";
+        String blueA5 = "ryan/GalacticSearchA/goingBall3.path";
+        String blueA6 = "ryan/GalacticSearchA/retrievingBall3.path";
+        String blueA7 = "ryan/GalacticSearchA/ends.path";
+        String[] trajectoryGroup = {blueA1, blueA2, blueA3, blueA4, blueA5, blueA6, blueA7};
+      
+        m_robotContainer.getStartAutonomousCommand(blueA1);
+        new IntakeDown(m_robotContainer.intake).schedule();
+        new FeederRunAuto(m_robotContainer.feeder, m_robotContainer.intake, m_robotContainer.shooter, gamepad).schedule();
+        for(int i = 1; i < trajectoryGroup.length; i++) {
+         m_robotContainer.getAutonomousCommand(trajectoryGroup[i]).schedule();
+        }
       } else {
-        m_robotContainer.getRedAAutonomousCommand().schedule();
+        String redA1 = "ryan/GalacticSearchA/approachingBall1.path";
+        String redA2 = "ryan/GalacticSearchA/receivingBall1.path";
+        String redA3 = "ryan/GalacticSearchA/approachingBall2.path";
+        String redA4 = "ryan/GalacticSearchA/receivingBall2.path";
+        String redA5 = "ryan/GalacticSearchA/approachingBall3.path";
+        String redA6 = "ryan/GalacticSearchA/receivingBall3.path";
+        String redA7 = "ryan/GalacticSearchA/redfinish.path";
+        String[] trajectoryGroup = {redA1, redA2, redA3, redA4, redA5, redA6, redA7};
+        m_robotContainer.getStartAutonomousCommand(redA1);
+        new IntakeDown(m_robotContainer.intake).schedule();
+        new FeederRunAuto(m_robotContainer.feeder, m_robotContainer.intake, m_robotContainer.shooter, gamepad).schedule();
+        for(int i = 1; i < trajectoryGroup.length; i++) {
+         m_robotContainer.getAutonomousCommand(trajectoryGroup[i]).schedule();
+        }
       }
 
     } else if (selected.equals("Galactic Search B")){
 
-      if (sideNT.equals("Left")){
-        m_robotContainer.getBlueBAutonomousCommand().schedule();
+      if (sideNT.equals("Left")){          
+        String blueB1 = "ryan/GalacticSearchB/Paths/headingBall1.path";
+        String blueB2 = "ryan/GalacticSearchB/gettingBall1.path";
+        String blueB3 = "ryan/GalacticSearchB/headingBall2.path";   
+        String blueB4 = "ryan/GalacticSearchB/gettingBall2.path";
+        String blueB5 = "ryan/GalacticSearchB/headingBall3.path";
+        String blueB6 = "ryan/GalacticSearchB/gettingBall3.path";
+        String blueB7 = "ryan/GalacticSearchB/ending.path";
+        String[] trajectoryGroup = {blueB1, blueB2, blueB3, blueB4, blueB5, blueB6, blueB7};
+        m_robotContainer.getStartAutonomousCommand(blueB1);
+        new IntakeDown(m_robotContainer.intake).schedule();
+        new FeederRunAuto(m_robotContainer.feeder, m_robotContainer.intake, m_robotContainer.shooter, gamepad).schedule();
+        for(int i = 1; i < trajectoryGroup.length; i++) {
+            m_robotContainer.getAutonomousCommand(trajectoryGroup[i]).schedule();
+        }
       } else {
-        m_robotContainer.getRedBAutonomousCommand().schedule();
+        String redB1 = "ryan/GalacticSearchB/towardsBall1.path";
+        String redB2 = "ryan/GalacticSearchB/collectBall1.path";
+        String redB3 = "ryan/GalacticSearchB/towardsBall2.path";
+        String redB4 = "ryan/GalacticSearchB/collectBall2.path";
+        String redB5 = "ryan/GalacticSearchB/towardsBall3.path";
+        String redB6 = "ryan/GalacticSearchB/collectBall3.path";
+        String redB7 = "ryan/GalacticSearchB/toEnd.path";
+        // Trajectory
+        String[] trajectoryGroup = {redB1, redB2, redB3, redB4, redB5, redB6, redB7};
+        m_robotContainer.getStartAutonomousCommand(redB1);
+        new IntakeDown(m_robotContainer.intake).schedule();
+        new FeederRunAuto(m_robotContainer.feeder, m_robotContainer.intake, m_robotContainer.shooter, gamepad).schedule();
+        for(int i = 1; i < trajectoryGroup.length; i++) {
+         m_robotContainer.getAutonomousCommand(trajectoryGroup[i]).schedule();
+        }
       }
 
     } else if (selected.equals("Bounce")) {
