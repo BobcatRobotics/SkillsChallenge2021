@@ -31,7 +31,7 @@ def detectBalls(frame):
 
     yellow_frame = cv2.inRange(hsv, lowerBound, upperBound)
 
-    yellow_frame = cv2.medianBlur(yellow_frame, 5)
+    # yellow_frame = cv2.medianBlur(yellow_frame, 5)
 
     circles_temp = cv2.HoughCircles(yellow_frame, cv2.HOUGH_GRADIENT, 1, minDist, param1=pr1, param2=pr2, minRadius=minR, maxRadius=maxR)
 
@@ -65,7 +65,7 @@ def writeDirection(direction: int, frame):
             position, 
             cv2.FONT_HERSHEY_SIMPLEX, 
             1, 
-            (255, 255, 255, 255), 
+            (255, 0, 0), 
             1
         )
         return frameWithText
@@ -76,7 +76,7 @@ def writeDirection(direction: int, frame):
             position, 
             cv2.FONT_HERSHEY_SIMPLEX, 
             1, 
-            (255, 255, 255, 255), 
+            (255, 0, 0), 
             1
         )
         return frameWithText

@@ -1,0 +1,9 @@
+{
+  "lengthUnit": "Foot",
+  "exportUnit": "Same as Project",
+  "maxVelocity": 32.8,
+  "maxAcceleration": 9.8,
+  "wheelBase": 2.585,
+  "gameName": "Barrel Racing Path",
+  "outputDir": "../../barrelOutput"
+}
