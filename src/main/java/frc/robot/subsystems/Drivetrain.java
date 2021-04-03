@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.NavxGyro;
+import frc.robot.RobotContainer;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -26,6 +28,7 @@ public class Drivetrain extends SubsystemBase {
    private WPI_TalonFX rmMotor;
    private WPI_TalonFX rbMotor;
    private TalonSRX srx;
+   public static final NavxGyro navx = new NavxGyro(SPI.Port.kMXP);
 
 
     // The motors on the left side of the drive.
@@ -47,7 +50,7 @@ public class Drivetrain extends SubsystemBase {
     private double leftPower = 0.0;
 
     private boolean invertRight = false; // Whether or not to invert the right motor
-    private boolean invertLeft = true; // Whether or not to invert the left motor
+    private boolean invertLeft = false; // Whether or not to invert the left motor
 
     //private final DifferentialDrive diffDrive = new DifferentialDrive(leftMotors, rightMotors); // The robot's drive
 
@@ -89,7 +92,14 @@ public class Drivetrain extends SubsystemBase {
         rmMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,0);
         rbMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,0);
         
+        ltMotor.setInverted(false);
+        lmMotor.setInverted(false);
+        lbMotor.setInverted(false);
+        rmMotor.setInverted(true);
+        rtMotor.setInverted(true);
+        rbMotor.setInverted(true);
         odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getHeading()));
+        resetOdometry();
         resetEncoders();
         zeroHeading();
     }
@@ -217,7 +227,7 @@ public class Drivetrain extends SubsystemBase {
     public void periodic() {
         //odometry.update(Rotation2d.fromDegrees(getHeading()), leftEncoder.getDistance(), rightEncoder.getDistance()); // Update the odometry in the periodic block (gets location on field)
         //periodic called ever .02s
-        //odometry.update(Rotation2d.fromDegrees(getHeading()), ltMotor.getSensorCollection().getIntegratedSensorPosition(), rtMotor.getSensorCollection().getIntegratedSensorPosition())
+        odometry.update(Rotation2d.fromDegrees(getHeading()), ltMotor.getSensorCollection().getIntegratedSensorPosition(), rtMotor.getSensorCollection().getIntegratedSensorPosition());
     }
 
     /**
@@ -273,15 +283,24 @@ public class Drivetrain extends SubsystemBase {
         ltMotor.setVoltage(leftVolts);
         lmMotor.setVoltage(leftVolts);
         lbMotor.setVoltage(leftVolts);
-        rtMotor.setVoltage(-rightVolts);
-        rmMotor.setVoltage(-rightVolts);
-        rbMotor.setVoltage(-rightVolts);
+        rtMotor.setVoltage(rightVolts);
+        rmMotor.setVoltage(rightVolts);
+        rbMotor.setVoltage(rightVolts);        
+        odometry.update(Rotation2d.fromDegrees(navx.getYaw()), ltMotor.getSensorCollection().getIntegratedSensorPosition(), rtMotor.getSensorCollection().getIntegratedSensorPosition());
+        
     } 
 
     /**
      * Resets the drive encoders to currently read a position of 0
      */
     public void resetEncoders() {
+        ltMotor.setSelectedSensorPosition(0.0);
+        lmMotor.setSelectedSensorPosition(0.0);
+        lbMotor.setSelectedSensorPosition(0.0);
+        rtMotor.setSelectedSensorPosition(0.0);
+        rmMotor.setSelectedSensorPosition(0.0);
+        rbMotor.setSelectedSensorPosition(0.0);
+
         // leftEncoder.reset();
         // rightEncoder.reset();
     }
@@ -291,8 +310,7 @@ public class Drivetrain extends SubsystemBase {
      * @return the average of the two encoder readings
      */
     public double getAverageEncoderDistance() {
-        return 0.0;
-        // return (leftEncoder.getDistance() + rightEncoder.getDistance()) / 2.0;
+        return ltMotor.getSensorCollection().getIntegratedSensorPosition()/2048 *( .5 * Math.PI);
     }
 
     /**
@@ -307,7 +325,7 @@ public class Drivetrain extends SubsystemBase {
      * Zeroes the heading of the robot
      */
     public void zeroHeading() {
-        gyro.reset();
+        navx.reset();
     }
 
     /**
@@ -315,7 +333,7 @@ public class Drivetrain extends SubsystemBase {
      * @return the robot's heading in degrees, from -180 to 180
      */
     public double getHeading() {
-        return Math.IEEEremainder(gyro.getAngle(), 360) * (GYRO_REVERSED ? -1.0 : 1.0);
+        return navx.pidGet() ;
     }
 
     /**
@@ -323,6 +341,6 @@ public class Drivetrain extends SubsystemBase {
      * @return The turn rate of the robot, in degrees per second
      */
     public double getTurnRate() {
-        return gyro.getRate() * (GYRO_REVERSED ? -1.0 : 1.0);
+        return navx.getRate() ;
     }
 }

@@ -1,0 +1,9 @@
+{
+  "lengthUnit": "Foot",
+  "exportUnit": "Same as Project",
+  "maxVelocity": 49.2126,
+  "maxAcceleration": 9.84252,
+  "wheelBase": 2.58530192,
+  "gameName": "Galactic Search B",
+  "outputDir": ""
+}

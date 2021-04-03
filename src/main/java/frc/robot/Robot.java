@@ -23,7 +23,7 @@ import frc.robot.commands.*;
 public class Robot extends TimedRobot {
   
   private DriveTele drivetele = new DriveTele(RobotContainer.drivetrain, RobotContainer.rightStick, RobotContainer.leftStick);
-  private MoveTurret moveTurret = new MoveTurret(RobotContainer.turret, RobotContainer.gamepad);
+  //private MoveTurret moveTurret = new MoveTurret(RobotContainer.turret, RobotContainer.gamepad);
   private StopAtCollision stopAtCollision = new StopAtCollision(RobotContainer.navx, RobotContainer.drivetrain);
   // Default Limelight modes for when the different robot states initialize
   // 0: Initial State (RobotInit)
@@ -69,19 +69,19 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    limelight = m_robotContainer.limelight;
-    limelight.setLED(1);
-    limelight.setCAM(0);
+    // limelight = m_robotContainer.limelight;
+    // limelight.setLED(1);
+    // limelight.setCAM(0);
     m_robotContainer = new RobotContainer();
     gamepad = m_robotContainer.gamepad;
     rightStick = m_robotContainer.rightStick;
-    intake = m_robotContainer.intake;
-    shooter = m_robotContainer.shooter;
+    // intake = m_robotContainer.intake;
+    // shooter = m_robotContainer.shooter;
     drivetrain = m_robotContainer.drivetrain;
-    feeder = m_robotContainer.feeder;
-    climber = m_robotContainer.climber;
-    turret = m_robotContainer.turret;
-    colorWheel = m_robotContainer.colorwheel;
+    // feeder = m_robotContainer.feeder;
+    // climber = m_robotContainer.climber;
+    // turret = m_robotContainer.turret;
+    // colorWheel = m_robotContainer.colorwheel;
     autoChooser = new SendableChooser<String>();
     pushBotChooser = new SendableChooser<String>();
     navx = m_robotContainer.navx;
@@ -95,13 +95,14 @@ public class Robot extends TimedRobot {
     autoChooser.addOption("Slalom","Slalom");
     autoChooser.addOption("Barrel","Barrel");
     autoChooser.addOption("Bounce","Bounce");
+    autoChooser.setName("AutoChooserTest");
 
     pushBotChooser.setDefaultOption("PUSH", Constants.PUSH);
-    pushBotChooser.addOption("DONT PUSH",Constants.DONT_PUSH);
     pushBotChooser.setName("Push Ally Bot");
 
     SmartDashboard.putData(autoChooser);
     SmartDashboard.putData(pushBotChooser);
+    drivetrain.resetOdometry();
   }
 
   @Override
@@ -111,21 +112,22 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    limelight.setLED(1);
-    limelight.setCAM(0);
+    drivetrain.resetOdometry();
+    // limelight.setLED(1);
+    // limelight.setCAM(0);
   }
 
   @Override
   public void disabledPeriodic() {
-    limelight.setLED(1);
-    climber.stop();
-    feeder.stop();
-    intake.stopFunnel();
-    intake.stopIntake();
-    intake.stopLowerTower();
-    shooter.stopShooter();
-    intake.intakeUp();
-    climber.withdraw();
+    // limelight.setLED(1);
+    // climber.stop();
+    // feeder.stop();
+    // intake.stopFunnel();
+    // intake.stopIntake();
+    // intake.stopLowerTower();
+    // shooter.stopShooter();
+    // intake.intakeUp();
+    // climber.withdraw();
 
         // Display values to driver station
         readTalonsAndShowValues();
@@ -134,11 +136,12 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     CommandScheduler.getInstance().cancelAll();
-    limelight.setLED(1);
-    limelight.setCAM(0);
+    drivetrain.resetOdometry();
+    // limelight.setLED(1);
+    // limelight.setCAM(0);
     
-    shooter.setSpeed(5000);
-    turret.zeroTurret();
+    // shooter.setSpeed(5000);
+    // turret.zeroTurret();
     desiredAutoCommand = getDesiredAutoCommand();
     if (desiredAutoCommand != null) {
       desiredAutoCommand.schedule();
@@ -149,6 +152,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     CommandScheduler.getInstance().run();
+    
   }
 
   public CommandBase getDesiredAutoCommand() {
@@ -170,70 +174,70 @@ public class Robot extends TimedRobot {
 
     if (selected.equals("Galactic Search A")) {
       if (sideNT.equals("Left")){
-        String blueA1 = "ryan/GalacticSearchA/Paths/goingBall1.path";
-        String blueA2 = "ryan/GalacticSearchA/retrievingBall1.path";
-        String blueA3 = "ryan/GalacticSearchA/goingBall2.path";
-        String blueA4 = "ryan/GalacticSearchA/retrievingBall2.path";
-        String blueA5 = "ryan/GalacticSearchA/goingBall3.path";
-        String blueA6 = "ryan/GalacticSearchA/retrievingBall3.path";
-        String blueA7 = "ryan/GalacticSearchA/ends.path";
+        String blueA1 = "paths/goingBall1.wpilib.json";
+        String blueA2 = "paths/retrievingBall1.wpilib.json";
+        String blueA3 = "paths/goingBall2.wpilib.json";
+        String blueA4 = "paths/retrievingBall2.wpilib.json";
+        String blueA5 = "paths/goingBall3.wpilib.json";
+        String blueA6 = "paths/retrievingBall3.wpilib.json";
+        String blueA7 = "paths/ends.wpilib.json";
         String[] trajectoryGroup = {blueA1, blueA2, blueA3, blueA4, blueA5, blueA6, blueA7};
       
         m_robotContainer.getStartAutonomousCommand(blueA1);
-        new IntakeDown(m_robotContainer.intake).schedule();
-        new FeederRunAuto(m_robotContainer.feeder, m_robotContainer.intake, m_robotContainer.shooter, gamepad).schedule();
+        // new IntakeDown(m_robotContainer.intake).schedule();
+        // new FeederRunAuto(m_robotContainer.feeder, m_robotContainer.intake, m_robotContainer.shooter, gamepad).schedule();
         for(int i = 1; i < trajectoryGroup.length; i++) {
-         m_robotContainer.getAutonomousCommand(trajectoryGroup[i]).schedule();
+         m_robotContainer.getAutonomousCommand(trajectoryGroup[i],i).schedule();
         }
       } else {
-        String redA1 = "ryan/GalacticSearchA/approachingBall1.path";
-        String redA2 = "ryan/GalacticSearchA/receivingBall1.path";
-        String redA3 = "ryan/GalacticSearchA/approachingBall2.path";
-        String redA4 = "ryan/GalacticSearchA/receivingBall2.path";
-        String redA5 = "ryan/GalacticSearchA/approachingBall3.path";
-        String redA6 = "ryan/GalacticSearchA/receivingBall3.path";
-        String redA7 = "ryan/GalacticSearchA/redfinish.path";
+        String redA1 = "paths/approachingBall1.wpilib.json";
+        String redA2 = "paths/receivingBall1.wpilib.json";
+        String redA3 = "paths/approachingBall2.wpilib.json";
+        String redA4 = "paths/receivingBall2.wpilib.json";
+        String redA5 = "paths/approachingBall3.wpilib.json";
+        String redA6 = "paths/receivingBall3.wpilib.json";
+        String redA7 = "paths/redfinish.wpilib.json";
         String[] trajectoryGroup = {redA1, redA2, redA3, redA4, redA5, redA6, redA7};
         m_robotContainer.getStartAutonomousCommand(redA1);
-        new IntakeDown(m_robotContainer.intake).schedule();
-        new FeederRunAuto(m_robotContainer.feeder, m_robotContainer.intake, m_robotContainer.shooter, gamepad).schedule();
+        // new IntakeDown(m_robotContainer.intake).schedule();
+        // new FeederRunAuto(m_robotContainer.feeder, m_robotContainer.intake, m_robotContainer.shooter, gamepad).schedule();
         for(int i = 1; i < trajectoryGroup.length; i++) {
-         m_robotContainer.getAutonomousCommand(trajectoryGroup[i]).schedule();
+         m_robotContainer.getAutonomousCommand(trajectoryGroup[i],i).schedule();
         }
       }
 
     } else if (selected.equals("Galactic Search B")){
 
       if (sideNT.equals("Left")){          
-        String blueB1 = "ryan/GalacticSearchB/Paths/headingBall1.path";
-        String blueB2 = "ryan/GalacticSearchB/gettingBall1.path";
-        String blueB3 = "ryan/GalacticSearchB/headingBall2.path";   
-        String blueB4 = "ryan/GalacticSearchB/gettingBall2.path";
-        String blueB5 = "ryan/GalacticSearchB/headingBall3.path";
-        String blueB6 = "ryan/GalacticSearchB/gettingBall3.path";
-        String blueB7 = "ryan/GalacticSearchB/ending.path";
+        String blueB1 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/headingBall1.wpilib.json";
+        String blueB2 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/gettingBall1.wpilib.json";
+        String blueB3 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/headingBall2.wpilib.json";   
+        String blueB4 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/gettingBall2.wpilib.json";
+        String blueB5 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/headingBall3.wpilib.json";
+        String blueB6 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/gettingBall3.wpilib.json";
+        String blueB7 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/ending.wpilib.json";
         String[] trajectoryGroup = {blueB1, blueB2, blueB3, blueB4, blueB5, blueB6, blueB7};
         m_robotContainer.getStartAutonomousCommand(blueB1);
-        new IntakeDown(m_robotContainer.intake).schedule();
-        new FeederRunAuto(m_robotContainer.feeder, m_robotContainer.intake, m_robotContainer.shooter, gamepad).schedule();
+        // new IntakeDown(m_robotContainer.intake).schedule();
+        // new FeederRunAuto(m_robotContainer.feeder, m_robotContainer.intake, m_robotContainer.shooter, gamepad).schedule();
         for(int i = 1; i < trajectoryGroup.length; i++) {
-            m_robotContainer.getAutonomousCommand(trajectoryGroup[i]).schedule();
+            m_robotContainer.getAutonomousCommand(trajectoryGroup[i],i).schedule();
+            
         }
       } else {
-        String redB1 = "ryan/GalacticSearchB/towardsBall1.path";
-        String redB2 = "ryan/GalacticSearchB/collectBall1.path";
-        String redB3 = "ryan/GalacticSearchB/towardsBall2.path";
-        String redB4 = "ryan/GalacticSearchB/collectBall2.path";
-        String redB5 = "ryan/GalacticSearchB/towardsBall3.path";
-        String redB6 = "ryan/GalacticSearchB/collectBall3.path";
-        String redB7 = "ryan/GalacticSearchB/toEnd.path";
+        String redB1 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/towardsBall1.wpilib.json";
+        String redB2 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/collectBall1.wpilib.json";
+        String redB3 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/towardsBall2.wpilib.json";
+        String redB4 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/collectBall2.wpilib.json";
+        String redB5 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/towardsBall3.wpilib.json";
+        String redB6 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/collectBall3.wpilib.json";
+        String redB7 = "paths/Pathweaver/ryan/GalacticSearchB/Paths/output/toEnd.wpilib.json";
         // Trajectory
         String[] trajectoryGroup = {redB1, redB2, redB3, redB4, redB5, redB6, redB7};
         m_robotContainer.getStartAutonomousCommand(redB1);
-        new IntakeDown(m_robotContainer.intake).schedule();
-        new FeederRunAuto(m_robotContainer.feeder, m_robotContainer.intake, m_robotContainer.shooter, gamepad).schedule();
+        
         for(int i = 1; i < trajectoryGroup.length; i++) {
-         m_robotContainer.getAutonomousCommand(trajectoryGroup[i]).schedule();
+         m_robotContainer.getAutonomousCommand(trajectoryGroup[i],i).schedule();
         }
       }
 
@@ -253,12 +257,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    drivetrain.resetOdometry();
     CommandScheduler.getInstance().cancelAll();
-    limelight.setLED(1);
-    limelight.setCAM(0);
+    // limelight.setLED(1);
+    // limelight.setCAM(0);
     
     drivetele.schedule();
-    moveTurret.schedule();
+    // moveTurret.schedule();
     stopAtCollision.schedule();
   }
 
@@ -267,70 +272,70 @@ public class Robot extends TimedRobot {
     //This should fire off commands to the robot based on the user input to controller?
     //Every 20 ms
     CommandScheduler.getInstance().run();
-    if(gamepad.getRawButton(Constants.Right_Trigger_Button) && !gamepad.getRawButton(Constants.Right_Bumper_Button)){
-      intake.runIntakeIn(true);
-    }else if(gamepad.getRawButton(Constants.Right_Bumper_Button) &&! gamepad.getRawButton(Constants.Right_Trigger_Button) ){
-      intake.runIntakeOut(true);
-    }else{
-      intake.stopIntake();
-    }
+    // if(gamepad.getRawButton(Constants.Right_Trigger_Button) && !gamepad.getRawButton(Constants.Right_Bumper_Button)){
+    //   intake.runIntakeIn(true);
+    // }else if(gamepad.getRawButton(Constants.Right_Bumper_Button) &&! gamepad.getRawButton(Constants.Right_Trigger_Button) ){
+    //   intake.runIntakeOut(true);
+    // }else{
+    //   intake.stopIntake();
+    // }
 
-    if(gamepad.getRawButton(Constants.Left_Bumper_Button)){
-      // if(shooter.isRunning())
-      // {
-      //     shooter.stopShooter();
-      //     shooter.setRunning(false);
-      // }else{
-      //     shooter.setRunning(true);
-      //     shooter.getToSpeed();
-      // }
-      shooter.setRunning(true);
-      shooter.getToSpeed();
-    } else {
-      shooter.stopShooter();
-      shooter.setRunning(false);
-    }
+    // if(gamepad.getRawButton(Constants.Left_Bumper_Button)){
+    //   // if(shooter.isRunning())
+    //   // {
+    //   //     shooter.stopShooter();
+    //   //     shooter.setRunning(false);
+    //   // }else{
+    //   //     shooter.setRunning(true);
+    //   //     shooter.getToSpeed();
+    //   // }
+    //   shooter.setRunning(true);
+    //   shooter.getToSpeed();
+    // } else {
+    //   shooter.stopShooter();
+    //   shooter.setRunning(false);
+    // }
 
-    if (gamepad.getRawButton(Constants.Right_Joystick_Pressed)) {
-      turret.targetEntity();
-    }else{
-      limelight.setLED(1);
-      limelight.setCAM(1);
-    }
+    // if (gamepad.getRawButton(Constants.Right_Joystick_Pressed)) {
+    //   turret.targetEntity();
+    // }else{
+    //   // limelight.setLED(1);
+    //   // limelight.setCAM(1);
+    // }
 
-    if(gamepad.getRawButton(Constants.X_Button)){
-      intake.intakeDown();
-    }
-    if(gamepad.getRawButton(Constants.Y_Button)){
-      intake.intakeUp();
-    }
-    if(gamepad.getRawButton(Constants.Left_Trigger_Button) || (gamepad.getRawButton(Constants.Right_Bumper_Button) && !gamepad.getRawButton(Constants.Right_Trigger_Button))){
-      FeederRun run = new FeederRun(feeder, intake, shooter, gamepad);
-      run.feed();
-    }else{
-      feeder.stop();
-      intake.stopFunnel();
-      intake.stopLowerTower();
-    }
-    if ((gamepad.getPOV() == Constants.D_Pad_Up) && (!rightStick.getRawButton(Constants.RS_Shift_Switch))) {
-      if (!climber.getDeployed()) {
-          climber.deploy();
-      }
-    }
-    if(gamepad.getPOV() == Constants.D_Pad_Down){
-      intake.runAllOut();
-      shooter.reverseShooters();
-      feeder.reverse();
-    }
-    if(gamepad.getRawButton(Constants.Left_Joystick_Pressed)){
+    // if(gamepad.getRawButton(Constants.X_Button)){
+    //   intake.intakeDown();
+    // }
+    // if(gamepad.getRawButton(Constants.Y_Button)){
+    //   intake.intakeUp();
+    // }
+    // if(gamepad.getRawButton(Constants.Left_Trigger_Button) || (gamepad.getRawButton(Constants.Right_Bumper_Button) && !gamepad.getRawButton(Constants.Right_Trigger_Button))){
+    //   FeederRun run = new FeederRun(feeder, intake, shooter, gamepad);
+    //   run.feed();
+    // }else{
+    //   feeder.stop();
+    //   intake.stopFunnel();
+    //   intake.stopLowerTower();
+    // }
+    // if ((gamepad.getPOV() == Constants.D_Pad_Up) && (!rightStick.getRawButton(Constants.RS_Shift_Switch))) {
+    //   if (!climber.getDeployed()) {
+    //       climber.deploy();
+    //   }
+    // }
+    // if(gamepad.getPOV() == Constants.D_Pad_Down){
+    //   intake.runAllOut();
+    //   shooter.reverseShooters();
+    //   feeder.reverse();
+    // }
+    // if(gamepad.getRawButton(Constants.Left_Joystick_Pressed)){
       
-      double speed = gamepad.getRawAxis(Joystick.AxisType.kY.value);
-      if(speed < 0.0)
-          speed = 0.0;
-      climber.climb(speed);
-    } else {
-      climber.climb(0.0);
-    }
+    //   double speed = gamepad.getRawAxis(Joystick.AxisType.kY.value);
+    //   if(speed < 0.0)
+    //       speed = 0.0;
+    //   climber.climb(speed);
+    // } else {
+    //   climber.climb(0.0);
+    // }
 
     //Below would be the check to see if the user is saying rotate the color wheel
     if (false) {
@@ -363,8 +368,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    limelight.setLED(1);
-    limelight.setCAM(0);
+    // limelight.setLED(1);
+    // limelight.setCAM(0);
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }
@@ -375,24 +380,27 @@ public class Robot extends TimedRobot {
 
   public void readTalonsAndShowValues() {
     // Display shooter motor speeds
-    SmartDashboard.putNumber("shooter1RPM:", shooter.getLeftRPM());
-    SmartDashboard.putNumber("shooter2RPM:", shooter.getRightRPM());
-    SmartDashboard.putNumber("Shooter Target Speed", shooter.getSpeed());
+    // SmartDashboard.putNumber("shooter1RPM:", shooter.getLeftRPM());
+    // SmartDashboard.putNumber("shooter2RPM:", shooter.getRightRPM());
+    // SmartDashboard.putNumber("Shooter Target Speed", shooter.getSpeed());
 
-    intake.checkLowerTower();
+    // intake.checkLowerTower();
 
     drivetrain.checkmotors();
-    
+    SmartDashboard.putNumber("NavX heading cos", RobotContainer.navx.getRotation2d().getCos());
+    SmartDashboard.putNumber("NavX PID", RobotContainer.navx.pidGet());
+    SmartDashboard.putNumber("NavX angle", RobotContainer.navx.getAngle());
+    SmartDashboard.putString("DriveTrain get pose", drivetrain.getPose().toString());
     //Turret Position
-    SmartDashboard.putNumber("TurretPos", turret.getPosition());
+    // SmartDashboard.putNumber("TurretPos", turret.getPosition());
     
-    //Ball Present SensorsS
-    SmartDashboard.putBoolean("Lower Tower Ball Present", intake.getBallPresent());
-    SmartDashboard.putBoolean("High Tower Ball Present", feeder.getBallPresent());
+    // //Ball Present SensorsS
+    // SmartDashboard.putBoolean("Lower Tower Ball Present", intake.getBallPresent());
+    // SmartDashboard.putBoolean("High Tower Ball Present", feeder.getBallPresent());
 
     //Limelight
-    SmartDashboard.putBoolean("Limelight has target", limelight.hasTarget());
-    SmartDashboard.putNumber("Target Distance (ft)", limelight.getTargetDistance());
+    // SmartDashboard.putBoolean("Limelight has target", limelight.hasTarget());
+    // SmartDashboard.putNumber("Target Distance (ft)", limelight.getTargetDistance());
 
   }
 }

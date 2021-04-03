@@ -2,13 +2,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 
 public class DriveTele extends CommandBase {
 
     // If the speed of a motor is less than this threshold, we'll just set it to zero
-    private final double driveThreshold = 0.07;
+    private final double driveThreshold = 0.2;
 
     // Represents the position of the right and left joysticks
     // These determine the speed of the right and left motors
@@ -51,8 +52,8 @@ public class DriveTele extends CommandBase {
     public void execute() {
         if (RobotState.isOperatorControl()) {
             // Gets the values of the right and left joystick positions
-            right = rightStick.getRawAxis(Joystick.AxisType.kY.value);
-            left = leftStick.getRawAxis(Joystick.AxisType.kY.value);
+            right = new XboxController(0).getRawAxis(5); //;rightStick.getRawAxis(Joystick.AxisType.kY.value);
+            left = new XboxController(0).getRawAxis(1) ;//leftStick.getRawAxis(Joystick.AxisType.kY.value);
 
             // If the value of the joysticks are too low just set it to zero
             if (Math.abs(right) <= driveThreshold) {

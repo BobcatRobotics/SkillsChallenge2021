@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
+import javax.xml.crypto.dsig.Transform;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -30,6 +32,7 @@ import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Transform2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
@@ -38,6 +41,7 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.RunShooter;
@@ -65,22 +69,22 @@ public class RobotContainer {
   public static final Drivetrain drivetrain = new Drivetrain();
 
   // Shooter
-  public static final Shooter shooter = new Shooter();
+  // public static final Shooter shooter = new Shooter();
 
-  // Feeder
-  public static final Feeder feeder = new Feeder();
+  // // Feeder
+  // public static final Feeder feeder = new Feeder();
 
-  // Intake
-  public static final Intake intake = new Intake();
+  // // Intake
+  // public static final Intake intake = new Intake();
 
-  // Limelight
-  public static final Limelight limelight = new Limelight();
+  // // Limelight
+  // public static final Limelight limelight = new Limelight();
 
-  // Turret
-  public static final Turret turret = new Turret(limelight);
+  // // Turret
+  // public static final Turret turret = new Turret(limelight);
 
-  //Climber
-  public static final Climber climber = new Climber();
+  // //Climber
+  // public static final Climber climber = new Climber();
 
   //Gyro
   public static final NavxGyro navx = new NavxGyro(SPI.Port.kMXP);
@@ -179,10 +183,11 @@ public class RobotContainer {
   }
 
   public Command getBarrelAutonomousCommand() {
-    String trajectoryJSON = "PathWeaver/dhanya/barrel.json";	      
+    String trajectoryJSON = "paths/testing.wpilib.json";
+    Trajectory trajectory = new Trajectory();	      
     try{
       Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-      Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
     } catch (IOException ex) {
       DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
     }
@@ -194,22 +199,26 @@ public class RobotContainer {
                                        Constants.RouteFinderConstants.kaVoltSecondsSquaredPerMeter),
             kDriveKinematics,
             10);
-
-    RamseteCommand barrelCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
+    Transform2d trans = drivetrain.getPose().minus(trajectory.getInitialPose());
+      //TrajectoryConfig config = new TrajectoryConfig(3, 3).setKinematics(kDriveKinematics).addContraint(autoVoltageConstraint);
+    trajectory.transformBy(trans);
+    RamseteCommand ramseteCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
     drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
     new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
     drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
     // RamseteCommand passes volts to the callback
-    drivetrain::tankDriveVolts, drivetrain); 
-    return barrelCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
+    drivetrain::tankDriveVolts, drivetrain);
+    return ramseteCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
   }
 
   public Command getBounceAutonomousCommand(){
 
-    String trajectoryJSON = "PathWeaver/dhanya/bounce.json";	      
+    String trajectoryJSON = "paths/bounce.wpilib.json";	      
+    	
+    Trajectory trajectory = new Trajectory();      
     try{
       Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-      Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
     } catch (IOException ex) {
       DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
     }
@@ -224,7 +233,7 @@ public class RobotContainer {
 
     RamseteCommand bounceCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
     drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-    new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
+    new SimpleMotorFeedforward(Constants.RouteFinderConstants.ksVolts, Constants.RouteFinderConstants.kvVoltSecondsPerMeter, Constants.RouteFinderConstants.kaVoltSecondsSquaredPerMeter), kDriveKinematics,
     drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
     // RamseteCommand passes volts to the callback
     drivetrain::tankDriveVolts, drivetrain); 
@@ -233,10 +242,11 @@ public class RobotContainer {
 
   public Command getSlalomAutonomousCommand(){
 
-    String trajectoryJSON = "PathWeaver/dhanya/bounce.json";	      
+    String trajectoryJSON = "paths/slalom.wpilib.json";	
+    Trajectory trajector = new Trajectory();      
     try{
       Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-      Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
     } catch (IOException ex) {
       DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
     }
@@ -256,169 +266,19 @@ public class RobotContainer {
     // RamseteCommand passes volts to the callback
     drivetrain::tankDriveVolts, drivetrain); 
 
-    return slalomCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.tankDriveVolts(0, 0));
+    return slalomCommand.beforeStarting(drivetrain::resetOdometry).andThen(() -> drivetrain.drive(0, 0));
 
   }
-    // //An example trajectory to follow. All units in meters.
-    // Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-    //     //Start at the origin facing the +X direction
-    //     new Pose2d(0, 0, new Rotation2d(0)),
-    //     //Pass through these waypoints
-    //     List.of(new Translation2d(2, 0), new Translation2d(5, 0)),
-    //     //End at this location
-    //     new Pose2d(5, 0, new Rotation2d(0)),
-    //     //Pass config
-    //     getConfig());
-    /**
-     * This declaration is fairly substantial, so we’ll go through it
-     * argument-by-argument:
-     * 
-     * The trajectory: This is the trajectory to be followed; accordingly, we pass
-     * the command the trajectory we just constructed in our earlier steps.
-     * 
-     * The pose supplier: This is a method reference (or lambda) to the drive
-     * subsystem method that returns the pose. The RAMSETE controller needs the
-     * current pose measurement to determine the required wheel outputs.
-     * 
-     * The RAMSETE controller: This is the RamseteController object (Java, C++) that
-     * will perform the path-following computation that translates the current
-     * measured pose and trajectory state into a chassis speed setpoint.
-     * 
-     * The drive feedforward: This is a SimpleMotorFeedforward object (Java, C++)
-     * that will automatically perform the correct feedforward calculation with the
-     * feedforward gains (kS, kV, and kA) that we obtained from the drive
-     * characterization tool.
-     * 
-     * The drive kinematics: This is the DifferentialDriveKinematics object (Java,
-     * C++) that we constructed earlier in our constants file, and will be used to
-     * convert chassis speeds to wheel speeds.
-     * 
-     * The wheel speed supplier: This is a method reference (or lambda) to the drive
-     * subsystem method that returns the wheel speeds
-     * 
-     * The left-side PIDController: This is the PIDController object (Java, C++)
-     * that will track the left-side wheel speed setpoint, using the P gain that we
-     * obtained from the drive characterization tool.
-     * 
-     * The right-side PIDController: This is the PIDController object (Java, C++)
-     * that will track the right-side wheel speed setpoint, using the P gain that we
-     * obtained from the drive characterization tool.
-     * 
-     * The output consumer: This is a method reference (or lambda) to the drive
-     * subsystem method that passes the voltage outputs to the drive motors.
-     * 
-     * The robot drive: This is the drive subsystem itself, included to ensure the
-     * command does not operate on the drive at the same time as any other command
-     * that uses the drive.
-     */
-  
-      // Dhanya Barrel
-      /**
-      RamseteCommand barrelCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-        drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-        new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-        drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-        // RamseteCommand passes volts to the callback
-        drivetrain::tankDriveVolts, drivetrain); 
-      **/
-      // Dhanya Bounce
-      /**
-      RamseteCommand bounceCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-        drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-        new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-        drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-        // RamseteCommand passes volts to the callback
-        drivetrain::tankDriveVolts, drivetrain); 
-      **/
-      // Dhanya Slalom
-      /**
-      RamseteCommand slalomCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-        drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-        new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-        drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-        // RamseteCommand passes volts to the callback
-        drivetrain::tankDriveVolts, drivetrain); 
-      **/
 
-      // Rakshan Barrel
-      /*
-      RamseteCommand barrelSafeCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-      // RamseteCommand passes volts to the callback
-      drivetrain::tankDriveVolts, drivetrain);
-
-      RamseteCommand barrelMiddleCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-      // RamseteCommand passes volts to the callback
-      drivetrain::tankDriveVolts, drivetrain);
-
-      RamseteCommand barrelFastCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-      // RamseteCommand passes volts to the callback
-      drivetrain::tankDriveVolts, drivetrain);
-      */
-      // Rakshan Slalom
-      /*
-      RamseteCommand slalomSafeCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-      // RamseteCommand passes volts to the callback
-      drivetrain::tankDriveVolts, drivetrain);
-
-      RamseteCommand slalomMiddleCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-      // RamseteCommand passes volts to the callback
-      drivetrain::tankDriveVolts, drivetrain);
-
-      RamseteCommand slalomFastCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-      // RamseteCommand passes volts to the callback
-      drivetrain::tankDriveVolts, drivetrain);
-      */
-      // Rakshan Bounce
-      /*
-      RamseteCommand bounceSafeCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-      // RamseteCommand passes volts to the callback
-      drivetrain::tankDriveVolts, drivetrain);
-
-      RamseteCommand bounceMiddleCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-      // RamseteCommand passes volts to the callback
-      drivetrain::tankDriveVolts, drivetrain);
-
-      RamseteCommand bounceFastCommand = new RamseteCommand(trajectory, // We input our desired trajectory here
-      drivetrain::getPose, new RamseteController(Constants.RouteFinderConstants.kRamseteB, Constants.RouteFinderConstants.kRamseteZeta),
-      new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter), kDriveKinematics,
-      drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
-      // RamseteCommand passes volts to the callback
-      drivetrain::tankDriveVolts, drivetrain);
-      */
-
-
-public Command getAutonomousCommand(String path) {
+public Command getAutonomousCommand(String path, int i) {
   var kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
   // Trajectory
   String trajectoryJSON = path; // Set to "" if it doesn't work
   // Create a voltage constraint to ensure we don't accelerate too fast
+  Trajectory trajectory = new Trajectory();
   try {
     Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
   } catch (IOException ex) {
     DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
   }
@@ -435,8 +295,16 @@ public Command getAutonomousCommand(String path) {
     drivetrain::getWheelSpeeds, new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0), new PIDController(Constants.RouteFinderConstants.kPDriveVel, 0, 0),
     // RamseteCommand passes volts to the callback
     drivetrain::tankDriveVolts, drivetrain);
-
   return ramseteCommand.andThen(() -> drivetrain.tankDriveVolts(0, 0));
+  // if ( i % 2 == 1) {
+  //   ParallelCommandGroup endRun = new ParallelCommandGroup(
+  //     FeederStopAuto(feeder,intake,shooter),
+  //     drivetrain.tankDriveVolts(0, 0)
+  //   );
+  //   return ramseteCommand.beforeStarting(() -> drivetrain.tankDriveVolts(0, 0)).alongWith(FeederRunAuto(feeder, intake, shooter).feed()).andThen(() -> endRun);
+  // } else{
+  //   return ramseteCommand.andThen(() -> drivetrain.tankDriveVolts(0, 0));
+  // }
 }
 
 public Command getStartAutonomousCommand(String path) {
@@ -444,9 +312,10 @@ public Command getStartAutonomousCommand(String path) {
   // Trajectory
   String trajectoryJSON = path; // Set to "" if it doesn't work
   // Create a voltage constraint to ensure we don't accelerate too fast
+  Trajectory trajectory = new Trajectory();
   try {
     Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
   } catch (IOException ex) {
     DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
   }

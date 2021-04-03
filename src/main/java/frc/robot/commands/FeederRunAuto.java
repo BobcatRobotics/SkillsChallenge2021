@@ -16,7 +16,7 @@ public class FeederRunAuto extends CommandBase {
      * 2. This starts the motors on the feeder. <br>
      * 3. The feeder is the system that takes the balls up into the shooter.
      */
-    public FeederRunAuto(Feeder fd, Intake itk, Shooter str, Joystick gpd) {
+    public FeederRunAuto(Feeder fd, Intake itk, Shooter str) {
         this.intake = itk;
         this.feeder = fd;
         this.shooter = str;

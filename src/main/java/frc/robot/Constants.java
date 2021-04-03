@@ -145,8 +145,8 @@ public final class Constants {
    */
   public static final class RobotContainerConstants {
     // Sticks
-    public static final int rightStickPort = 1;
-    public static final int leftStickPort = 0;
+    public static final int rightStickPort = 5;
+    public static final int leftStickPort = 1;
     public static final int gamepadPort = 2;
 
     // Gamepad POV values in degrees
